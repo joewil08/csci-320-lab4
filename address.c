@@ -71,19 +71,48 @@ void update_page_table(unsigned char page, unsigned char frame) {
 
 // Implement the TLB functions below this line
 void init_tlb() {
-
+    tlb.entry = (TLB_Entry*)malloc(TLB_LEN * sizeof(TLB_Entry));
+    tlb.head = 0;
+    tlb.tail = 0;
+    tlb.length = 0;
+    tlb.is_full = 0;
+    for (int i = 0; i < TLB_LEN; i++) {
+        tlb.entry[i].is_valid = 0;
+        tlb.entry[i].page = 0;
+        tlb.entry[i].frame = 0;
+    }
 }
 
 short tlb_lookup(unsigned char page) {
-
+    for (int i = 0; i < TLB_LEN; i++) {
+        TLB_Entry current = tlb.entry[i];
+        if (current.is_valid && current.page == page) {
+            return current.frame;
+        }
+    }
+    return -1;
 }
 
 void update_tlb(unsigned char page, unsigned char frame) {
-
+    TLB_Entry new = {page, frame, 1};
+    if (tlb.is_full) {
+        tlb.head = (tlb.head + 1) % TLB_LEN;
+    }
+    tlb.entry[tlb.tail] = new;
+    tlb.tail = (tlb.tail + 1) % TLB_LEN;
+    if (tlb.tail == tlb.head) {
+        tlb.is_full = 1;
+    } else {
+        tlb.is_full =  0;
+    }
 }
 
 void close_tlb() {
-
+    free(tlb.entry);
+    tlb.head = 0;
+    tlb.tail = 0;
+    tlb.length = 0;
+    tlb.is_full = 0;
 }
 
 
