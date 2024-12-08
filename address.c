@@ -118,27 +118,33 @@ void close_tlb() {
 
 // Implement the Physical Memory functions below this line
 void init_physical_memory() {
-
+    main_mem.mem = (char*)malloc(256*256*sizeof(char));
+    main_mem.next_available_frame = 0;
 }
 
 void free_physical_memory() {
-
+    free(main_mem.mem);
 }
 
 signed char get_value(int logical_address) {
-
+    unsigned char pg = get_page_from(logical_address);
+    unsigned char offset = get_offset_from(logical_address);
+    iteration = 1;
+    int frame = page_table_lookup(pg);
+    iteration = 0;
+    return main_mem.mem[frame * 256 + offset];
 }
 
 
 // Implement the Backing Store functions below this line
 void init_backing_store(char* filename) {
-
+    backing_store_fp = fopen(filename, "r");
 }
 
 int roll_in(unsigned char page, unsigned char frame) {
-
+    return -1;
 }
 
 void close_backing_store() {
-    
+    fclose(backing_store_fp);
 }
